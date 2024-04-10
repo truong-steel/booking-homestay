@@ -35,8 +35,9 @@ public class RoomController {
     private final BookingServiceImpl bookingService;
 
     @PostMapping("/add/new-room")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<RoomResponse> addNewRoom(
-           @RequestParam("photo") MultipartFile photo,
+           @RequestParam("image") MultipartFile photo,
            @RequestParam("roomType") String roomType,
            @RequestParam("roomPrice") BigDecimal roomPrice) throws SQLException, IOException {
         Room savedRoom = roomService.addNewRoom(photo, roomType, roomPrice);
@@ -53,6 +54,22 @@ public class RoomController {
     @GetMapping("/all-rooms")
     public ResponseEntity<List<RoomResponse>> getAllRooms() throws SQLException {
         List<Room> rooms = roomService.getAllRooms();
+        List<RoomResponse> roomResponses = new ArrayList<>();
+        for (Room room: rooms){
+            byte[] photoBytes = roomService.getRoomPhotoByRoomId(room.getId());
+            if (photoBytes != null && photoBytes.length > 0){
+                String base64Photo = Base64.getEncoder().encodeToString(photoBytes);
+                RoomResponse roomResponse = getRoomResponse(room);
+                roomResponse.setPhoto(base64Photo);
+                roomResponses.add(roomResponse);
+            }
+        }
+        return ResponseEntity.ok(roomResponses);
+    }
+
+    @GetMapping("/homestay/{homestayId}/rooms")
+    public ResponseEntity<List<RoomResponse>> getAllRoomsByHomestayId(@PathVariable Long homestayId) throws SQLException {
+        List<Room> rooms = roomService.findRoomsByHomestayId(homestayId);
         List<RoomResponse> roomResponses = new ArrayList<>();
         for (Room room: rooms){
             byte[] photoBytes = roomService.getRoomPhotoByRoomId(room.getId());
@@ -147,4 +164,6 @@ public class RoomController {
     private List<BookedRoom> getAllBookingsByRoomId(Long roomId) {
         return bookingService.getAllBookingsByRoomId(roomId);
     }
+
+
 }

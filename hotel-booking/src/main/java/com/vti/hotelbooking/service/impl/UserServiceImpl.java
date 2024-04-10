@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -30,7 +31,30 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println(user.getPassword());
-        Role userRole = roleRepository.findByName("ROLE_USER").get();
+        Role userRole = roleRepository.findByName("ROLE_CUSTOMER").get();
+        user.setRoles(Collections.singletonList(userRole));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User registerAdmin(User user) {
+        if (userRepository.existsByEmail(user.getEmail())){
+            throw new UserAlreadyExistsException(user.getEmail() + " already exists");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println(user.getPassword());
+        Role userRole = roleRepository.findByName("ROLE_ADMIN").get();
+        user.setRoles(Collections.singletonList(userRole));
+        return userRepository.save(user);
+    }
+    @Override
+    public User registerManager(User user) {
+        if (userRepository.existsByEmail(user.getEmail())){
+            throw new UserAlreadyExistsException(user.getEmail() + " already exists");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println(user.getPassword());
+        Role userRole = roleRepository.findByName("ROLE_MANAGER").get();
         user.setRoles(Collections.singletonList(userRole));
         return userRepository.save(user);
     }
@@ -54,5 +78,10 @@ public class UserServiceImpl implements UserService {
     public User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Override
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 }

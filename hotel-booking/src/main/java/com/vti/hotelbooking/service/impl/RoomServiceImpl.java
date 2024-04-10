@@ -96,4 +96,11 @@ public class RoomServiceImpl implements RoomService {
     public List<String> getAllRoomTypes() {
         return roomRepository.findDistinctRoomTypes();
     }
+
+    @Override
+    public List<Room> findRoomsByHomestayId(Long homestayId) {
+        return roomRepository.findAllByHomestayId(homestayId);
+    }
+
+
 }

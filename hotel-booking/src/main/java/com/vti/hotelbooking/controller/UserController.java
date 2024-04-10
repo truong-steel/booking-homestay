@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> getUserByEmail(@PathVariable("email") String email){
         try{
             User theUser = userService.getUser(email);
@@ -37,7 +37,8 @@ public class UserController {
         }
     }
     @DeleteMapping("/delete/{userEmail}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and #email == principal.username)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_CUSTOMER') and #email == principal.username) " +
+            "or (hasRole('ROLE_MANAGER') and #email == principal.username)")
     public ResponseEntity<String> deleteUser(@PathVariable("userEmail") String email){
         try{
             userService.deleteUser(email);

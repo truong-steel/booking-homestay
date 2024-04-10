@@ -7,6 +7,7 @@ import com.vti.hotelbooking.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class    RoleController {
     private final RoleService roleService;
 
     @GetMapping("/all-roles")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<Role>> getAllRoles(){
         return new ResponseEntity<>(roleService.getRoles(), FOUND);
     }
 
     @PostMapping("/create-new-role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> createRole(@RequestBody Role theRole){
         try{
             roleService.createRole(theRole);
@@ -35,6 +38,7 @@ public class    RoleController {
         }
     }
     @DeleteMapping("/delete/{roleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteRole(@PathVariable("roleId") Long roleId){
         roleService.deleteRole(roleId);
     }
@@ -44,12 +48,14 @@ public class    RoleController {
     }
 
     @PostMapping("/remove-user-from-role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public User removeUserFromRole(
             @RequestParam("userId") Long userId,
             @RequestParam("roleId") Long roleId){
         return roleService.removeUserFromRole(userId, roleId);
     }
     @PostMapping("/assign-user-to-role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public User assignUserToRole(
             @RequestParam("userId") Long userId,
             @RequestParam("roleId") Long roleId){

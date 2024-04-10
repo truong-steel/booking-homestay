@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,10 +34,32 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
-    @PostMapping("/register-user")
+    @PostMapping("/register-customer")
     public ResponseEntity<?> registerUser(@RequestBody User user){
         try{
             userService.registerUser(user);
+            return ResponseEntity.ok("Registration successful!");
+
+        }catch (UserAlreadyExistsException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/register-manager")
+    public ResponseEntity<?> registerManager(@RequestBody User user){
+        try{
+            userService.registerManager(user);
+            return ResponseEntity.ok("Registration successful!");
+
+        }catch (UserAlreadyExistsException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+    @PostMapping("/register-admin")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> registerAdmin(@RequestBody User user){
+        try{
+            userService.registerAdmin(user);
             return ResponseEntity.ok("Registration successful!");
 
         }catch (UserAlreadyExistsException e){

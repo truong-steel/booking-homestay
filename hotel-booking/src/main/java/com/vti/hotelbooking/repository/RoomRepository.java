@@ -3,6 +3,7 @@ package com.vti.hotelbooking.repository;
 import com.vti.hotelbooking.model.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,5 +21,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             ")")
 
     List<Room> findAvailableRoomsByDatesAndType(LocalDate checkInDate, LocalDate checkOutDate, String roomType);
+
+    @Query("SELECT r FROM Room r WHERE r.homestay.id = :homestayId")
+    List<Room> findAllByHomestayId(@Param("homestayId") Long homestayId);
 }
 

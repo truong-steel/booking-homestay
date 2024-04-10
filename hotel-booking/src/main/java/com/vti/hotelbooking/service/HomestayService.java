@@ -2,7 +2,9 @@ package com.vti.hotelbooking.service;
 
 import com.vti.hotelbooking.model.Homestay;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +18,12 @@ public interface HomestayService {
     Homestay addNewHomestay(String homestayName, String homestayAddress);
 
     void   updateHomestayOwner(Long homestayId, Long userId );
-    Homestay updateHomestayInfo(Long homestayId, String homestayName, String homestayAddress);
+    Homestay updateHomestayInfo(Long homestayId, String homestayName, String homestayAddress,String description, byte[] homestayImageBytes);
 
     void    deleteHomestay(Long homestayId);
 
     List<Homestay> getHomestayByOwnerId(Long ownerId);
 
+    byte[] getHomestayImageById(Long roomId) throws SQLException;
 
 }
