@@ -1,7 +1,9 @@
 package com.vti.hotelbooking.repository;
 
 import com.vti.hotelbooking.model.Room;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,5 +26,10 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("SELECT r FROM Room r WHERE r.homestay.id = :homestayId")
     List<Room> findAllByHomestayId(@Param("homestayId") Long homestayId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM Room r WHERE r.room_id = :roomId", nativeQuery = true)
+    void deleteRoomById(@Param("roomId") Long roomId);
 }
 
