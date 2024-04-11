@@ -31,5 +31,16 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Modifying
     @Query(value = "DELETE FROM Room r WHERE r.room_id = :roomId", nativeQuery = true)
     void deleteRoomById(@Param("roomId") Long roomId);
+
+    @Query(value = "SELECT DISTINCT r.* FROM room r " +
+            "JOIN homestay h ON r.homestay_id = h.homestay_id " +
+            "LEFT JOIN booked_room br ON r.room_id = br.room_id " +
+            "WHERE h.homestay_address = :homestayAddress " +
+            "AND (br.checkin_date IS NULL OR :checkOutDate <= br.checkin_date OR :checkInDate >= br.checkout_date)",
+            nativeQuery = true)
+    List<Room> findAvailableRoomsByAddress(
+            @Param("homestayAddress") String homestayAddress,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate);
 }
 

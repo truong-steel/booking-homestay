@@ -29,4 +29,7 @@ public interface RoomService {
     List<String> getAllRoomTypes();
 
     List<Room> findRoomsByHomestayId(Long homestayId);
+
+    List<Room> getAvailableRoomsByAddress(String address, LocalDate checkInDate, LocalDate checkOutDate);
+
 }

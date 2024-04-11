@@ -24,11 +24,12 @@ public class HomestayController {
     private final HomestayService homestayService;
 
     @PostMapping("/add/new-homestay")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<Homestay> addNewHomestay(
             @RequestParam("homestayName") String homestayName,
-            @RequestParam("homestayAddress") String homestayAddress){
-        Homestay newHomestay = homestayService.addNewHomestay(homestayName, homestayAddress);
+            @RequestParam("homestayAddress") String homestayAddress,
+            @RequestParam("ownerEmail") String ownerEmail){
+        Homestay newHomestay = homestayService.addNewHomestay(homestayName, homestayAddress, ownerEmail);
         return ResponseEntity.ok(newHomestay);
     }
 
@@ -41,6 +42,11 @@ public class HomestayController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @GetMapping("/all-address")
+    public List<String> getAllHomestayAddress(){
+        return homestayService.getAllHomestayAddress();
+    }
+
     @GetMapping("/all")
     public List<Homestay> getAllHomestay(){
        return homestayService.getAllHomestay();
@@ -50,25 +56,23 @@ public class HomestayController {
     public List<Homestay> getHomestayByOwnerId(@PathVariable Long userId){
         return homestayService.getHomestayByOwnerId(userId);
     }
-
     @GetMapping(value = "/homestay/image/{homestayId}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<byte[]> getHomestayImageById(@PathVariable Long homestayId) throws SQLException {
         byte[] imageBytes = homestayService.getHomestayImageById(homestayId);
         if (imageBytes != null) {
             return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageBytes);
         } else {
-            // Trả về 404 Not Found nếu không tìm thấy hình ảnh
             return ResponseEntity.notFound().build();
         }
     }
 
-    @PutMapping("/homestay/{homestayId}/update")
-//    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    @PutMapping("/update/homestay/{homestayId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<Void> updateHomestayInfo(@PathVariable Long homestayId,
-                                       @RequestParam("homestayName") String homestayName,
-                                       @RequestParam("homestayAddress") String homestayAddress,
-                                       @RequestParam("description") String description,
-                                       @RequestParam("homestayImage") MultipartFile homestayImage) throws IOException, SQLException {
+                                       @RequestParam(required = false) String homestayName,
+                                       @RequestParam(required = false) String homestayAddress,
+                                       @RequestParam(required = false) String description,
+                                       @RequestParam(required = false) MultipartFile homestayImage) throws IOException, SQLException {
         byte[] photoBytes = homestayImage != null && !homestayImage.isEmpty() ?
                 homestayImage.getBytes() : homestayService.getHomestayImageById(homestayId);
         Blob photoBlob = photoBytes != null && photoBytes.length >0 ? new SerialBlob(photoBytes): null;
@@ -76,6 +80,19 @@ public class HomestayController {
         theHomestay.setHomestayImage(photoBlob);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @DeleteMapping("/delete/homestay/{homestayId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<String> deleteHomestay(@PathVariable Long homestayId) {
+        try {
+            homestayService.deleteHomestay(homestayId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete homestay");
+        }
     }
 
 }

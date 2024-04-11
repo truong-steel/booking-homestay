@@ -20,5 +20,6 @@ public interface HomestayRepository extends JpaRepository<Homestay, Long>  {
     @Query("UPDATE Homestay h SET h.owner.id = :userId WHERE h.id = :homestayId")
     void updateHomestayOwnerById(@Param("homestayId") Long homestayId, @Param("userId") Long userId);
 
-
+    @Query("SELECT DISTINCT h.homestayAddress FROM Homestay h")
+    List<String> findDistinctHomestayAddress();
 }

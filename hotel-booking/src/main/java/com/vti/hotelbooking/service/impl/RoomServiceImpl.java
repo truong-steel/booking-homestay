@@ -1,5 +1,6 @@
 package com.vti.hotelbooking.service.impl;
 
+import com.sun.security.auth.UserPrincipal;
 import com.vti.hotelbooking.exception.InternalServerException;
 import com.vti.hotelbooking.exception.ResourceNotFoundException;
 import com.vti.hotelbooking.model.Homestay;
@@ -7,9 +8,14 @@ import com.vti.hotelbooking.model.Room;
 import com.vti.hotelbooking.repository.RoomRepository;
 import com.vti.hotelbooking.service.HomestayService;
 import com.vti.hotelbooking.service.RoomService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,31 +69,52 @@ public class RoomServiceImpl implements RoomService {
         return null;
     }
 
-    @Override
+//    @Override
+//    public void deleteRoom(Long roomId) {
+//        // Check if room exists
+//        if (roomRepository.existsById(roomId)) {
+//            // Room exists, proceed with deletion
+//            roomRepository.deleteRoomById(roomId);
+//        } else {
+//            // Room does not exist, throw IllegalArgumentException
+//            throw new IllegalArgumentException("Room with ID " + roomId + " does not exist");
+//        }
+//    }
+
     public void deleteRoom(Long roomId) {
-        // Check if room exists
-        if (roomRepository.existsById(roomId)) {
-            // Room exists, proceed with deletion
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String principalUsername = authentication.getName();
+
+        Room room = roomRepository.findById(roomId).get();
+        String ownerEmail = room.getHomestay().getOwner().getEmail();
+        if (principalUsername.equals(ownerEmail)) {
             roomRepository.deleteRoomById(roomId);
         } else {
-            // Room does not exist, throw IllegalArgumentException
-            throw new IllegalArgumentException("Room with ID " + roomId + " does not exist");
+            throw new AccessDeniedException("You don't have permission to delete this room");
         }
-    }
+}
 
     @Override
     public Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, byte[] photoBytes) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String principalUsername = authentication.getName();
+
         Room room = roomRepository.findById(roomId).get();
-        if (roomType != null) room.setRoomType(roomType);
-        if (roomPrice != null) room.setRoomPrice(roomPrice);
-        if (photoBytes != null && photoBytes.length > 0) {
-            try {
-                room.setPhoto(new SerialBlob(photoBytes));
-            } catch (SQLException ex) {
-                throw new InternalServerException("Fail updating room");
+        String ownerEmail = room.getHomestay().getOwner().getEmail();
+        if (principalUsername.equals(ownerEmail)) {
+            if (roomType != null) room.setRoomType(roomType);
+            if (roomPrice != null) room.setRoomPrice(roomPrice);
+            if (photoBytes != null && photoBytes.length > 0) {
+                try {
+                    room.setPhoto(new SerialBlob(photoBytes));
+                } catch (SQLException ex) {
+                    throw new InternalServerException("Fail updating room");
+                }
             }
+            return roomRepository.save(room);
+        } else {
+            throw new AccessDeniedException("You don't have permission to update this room");
         }
-        return roomRepository.save(room);
     }
 
 
@@ -109,6 +136,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<Room> findRoomsByHomestayId(Long homestayId) {
         return roomRepository.findAllByHomestayId(homestayId);
+    }
+
+    @Override
+    public List<Room> getAvailableRoomsByAddress(String address, LocalDate checkInDate, LocalDate checkOutDate) {
+        return roomRepository.findAvailableRoomsByAddress(address, checkInDate, checkOutDate);
     }
 
 

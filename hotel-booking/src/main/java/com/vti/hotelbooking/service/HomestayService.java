@@ -15,7 +15,7 @@ public interface HomestayService {
 
     Optional<Homestay> findByHomestayId(Long homestayId);
 
-    Homestay addNewHomestay(String homestayName, String homestayAddress);
+    Homestay addNewHomestay(String homestayName, String homestayAddress, String ownerEmail);
 
     void   updateHomestayOwner(Long homestayId, Long userId );
     Homestay updateHomestayInfo(Long homestayId, String homestayName, String homestayAddress,String description, byte[] homestayImageBytes);
@@ -25,5 +25,7 @@ public interface HomestayService {
     List<Homestay> getHomestayByOwnerId(Long ownerId);
 
     byte[] getHomestayImageById(Long roomId) throws SQLException;
+
+    List<String> getAllHomestayAddress();
 
 }
