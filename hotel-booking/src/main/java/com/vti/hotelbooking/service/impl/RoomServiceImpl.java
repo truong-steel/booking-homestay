@@ -2,8 +2,10 @@ package com.vti.hotelbooking.service.impl;
 
 import com.vti.hotelbooking.exception.InternalServerException;
 import com.vti.hotelbooking.exception.ResourceNotFoundException;
+import com.vti.hotelbooking.model.Homestay;
 import com.vti.hotelbooking.model.Room;
 import com.vti.hotelbooking.repository.RoomRepository;
+import com.vti.hotelbooking.service.HomestayService;
 import com.vti.hotelbooking.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +28,15 @@ public class RoomServiceImpl implements RoomService {
 
     @Autowired
     private final RoomRepository  roomRepository;
+    private final HomestayService homestayService;
 
     @Override
-    public Room addNewRoom(MultipartFile file, String roomType, BigDecimal roomPrice) throws SQLException, IOException {
+    public Room addNewRoom(MultipartFile file, String roomType, BigDecimal roomPrice, Long homestayId) throws SQLException, IOException {
+        Homestay thisHomestay = homestayService.findByHomestayId(homestayId).get();
         Room room = new Room();
         room.setRoomType(roomType);
         room.setRoomPrice(roomPrice);
+        room.setHomestay(thisHomestay);
         if (!file.isEmpty()){
             byte[] photoBytes = file.getBytes();
             Blob photoBlob = new SerialBlob(photoBytes);

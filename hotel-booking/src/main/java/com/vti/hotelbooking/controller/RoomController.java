@@ -39,8 +39,9 @@ public class RoomController {
     public ResponseEntity<RoomResponse> addNewRoom(
            @RequestParam("image") MultipartFile photo,
            @RequestParam("roomType") String roomType,
+           @RequestParam(required = false) Long homestayId,
            @RequestParam("roomPrice") BigDecimal roomPrice) throws SQLException, IOException {
-        Room savedRoom = roomService.addNewRoom(photo, roomType, roomPrice);
+        Room savedRoom = roomService.addNewRoom(photo, roomType, roomPrice, homestayId);
         RoomResponse roomResponse = new RoomResponse(savedRoom.getId(), savedRoom.getRoomType(), savedRoom.getRoomPrice());
         return ResponseEntity.ok(roomResponse);
     }
@@ -97,7 +98,7 @@ public class RoomController {
     }
 
     @PutMapping("/update/{roomId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<RoomResponse> updateRoom(@PathVariable Long roomId,
                                                    @RequestParam(required = false)  String roomType,
                                                    @RequestParam(required = false) BigDecimal roomPrice,

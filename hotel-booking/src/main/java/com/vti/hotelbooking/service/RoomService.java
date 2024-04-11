@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public interface RoomService {
-    Room addNewRoom(MultipartFile photo, String roomType, BigDecimal roomPrice) throws SQLException, IOException;
+    Room addNewRoom(MultipartFile photo, String roomType, BigDecimal roomPrice, Long homestayId) throws SQLException, IOException;
 
     List<Room> getAllRooms();
 
