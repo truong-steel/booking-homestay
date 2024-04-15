@@ -1,5 +1,7 @@
 package com.vti.hotelbooking.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,9 +20,11 @@ public class Homestay {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "homestay_id")
     private Long id;
+
     @Lob
     @Column(name = "homstay_image")
     private Blob homestayImage = null;
+
     private String homestayName;
     private String homestayAddress;
     private String description = null;
@@ -29,6 +33,8 @@ public class Homestay {
     @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
     private User owner;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "homestay", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    List<Room>  rooms;
+//    @JsonManagedReference
+    private List<Room>  rooms;
 }

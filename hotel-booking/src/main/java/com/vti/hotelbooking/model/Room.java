@@ -1,5 +1,8 @@
 package com.vti.hotelbooking.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -28,6 +31,7 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "homestay_id")
+//    @JsonBackReference
     private Homestay homestay;
 
     @Lob

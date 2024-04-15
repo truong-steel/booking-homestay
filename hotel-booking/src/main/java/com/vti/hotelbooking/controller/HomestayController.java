@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,6 +51,16 @@ public class HomestayController {
     @GetMapping("/all")
     public List<Homestay> getAllHomestay(){
        return homestayService.getAllHomestay();
+    }
+
+    @GetMapping("/homestay/{homestayId}")
+    public ResponseEntity<Optional<Homestay>> getHomestayById(@PathVariable Long homestayId){
+        Optional<Homestay> thisHomestay = homestayService.findByHomestayId(homestayId);
+        if (thisHomestay.isPresent()) {
+            return ResponseEntity.ok(thisHomestay);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/homestay/owner/{userId}")
