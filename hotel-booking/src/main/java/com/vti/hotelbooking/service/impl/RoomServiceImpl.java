@@ -38,11 +38,20 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room addNewRoom(MultipartFile file, String roomType, BigDecimal roomPrice, Long homestayId) throws SQLException, IOException {
-        Homestay thisHomestay = homestayService.findByHomestayId(homestayId).get();
         Room room = new Room();
-        room.setRoomType(roomType);
-        room.setRoomPrice(roomPrice);
-        room.setHomestay(thisHomestay);
+        if(homestayId != null) {
+            Optional<Homestay> thisHomestay = homestayService.findByHomestayId(homestayId);
+
+            if (thisHomestay.isPresent()) {
+                Homestay theHomestay = new Homestay(thisHomestay.get().getId(), thisHomestay.get().getHomestayImage(),
+                        thisHomestay.get().getHomestayName(), thisHomestay.get().getHomestayAddress(),
+                        thisHomestay.get().getDescription(), thisHomestay.get().getOwner(),
+                        thisHomestay.get().getRooms());
+                room.setHomestay(theHomestay);
+            }
+        }
+            room.setRoomType(roomType);
+            room.setRoomPrice(roomPrice);
         if (!file.isEmpty()){
             byte[] photoBytes = file.getBytes();
             Blob photoBlob = new SerialBlob(photoBytes);
