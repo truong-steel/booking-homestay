@@ -34,6 +34,7 @@ public class Homestay {
     private User owner;
 
     @JsonIgnore
+//    @JsonManagedReference
     @OneToMany(mappedBy = "homestay", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JsonManagedReference
     private List<Room>  rooms;

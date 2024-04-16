@@ -11,6 +11,8 @@ import com.vti.hotelbooking.service.BookingService;
 import com.vti.hotelbooking.service.RoomService;
 import com.vti.hotelbooking.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -50,6 +52,12 @@ public class BookingServiceImpl implements BookingService {
         if (bookingRequest.getCheckOutDate().isBefore(bookingRequest.getCheckInDate())){
             throw new InvalidBookingRequestException("Check-in date must come before check-out date");
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String principalUsername = authentication.getName();
+        User user = userService.getUser(principalUsername);
+        bookingRequest.setUser(user);
+
         Room room = roomService.getRoomById(roomId).get();
         List<BookedRoom> existingBookings = room.getBookings();
         boolean roomIsAvailable = roomIsAvailable(bookingRequest,existingBookings);

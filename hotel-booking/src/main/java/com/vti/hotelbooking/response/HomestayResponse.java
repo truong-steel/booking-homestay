@@ -1,9 +1,13 @@
 package com.vti.hotelbooking.response;
 
 import com.vti.hotelbooking.model.User;
+import lombok.Data;
+import lombok.Setter;
 
 import java.util.List;
 
+@Data
+@Setter
 public class HomestayResponse {
     private Long id;
     private String homestayName;

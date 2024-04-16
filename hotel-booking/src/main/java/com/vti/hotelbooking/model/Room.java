@@ -29,9 +29,10 @@ public class Room {
     @Column(name = "room_price")
     private BigDecimal roomPrice;
 
+//    @JsonBackReference
+//    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "homestay_id")
-//    @JsonBackReference
     private Homestay homestay;
 
     @Lob
